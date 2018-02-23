@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    <!-- All of the Node.js APIs are available in this renderer process. -->
+    We are using Node.js <script>document.write(process.versions.node)</script>,
+    Chromium <script>document.write(process.versions.chrome)</script>,
+    Electron <script>document.write(process.versions.electron)</script>,
+    and Serialport <script>document.write(require('serialport/package').version)</script>.
+
+    <div id="error"></div>
+    <div id="ports"></div>
+  </body>
+
+  <script>
+    // You can also require other files to run in this process
+    const serialPor = require('./renderer.js');
+    const buffer = require('buffer').Buffer;
+
+    function randNum(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    };
+
+    /**
+     * Mock data
+     *
+     * @type {[null,null]}
+     */
+    var data = [
+        [10, 10, 12],
+        [0xF0, 49, 52, 66, 32, 32, 32, 32,  32, 32, 32,  0xF0, 20, 40],    //  [0xF0, '1', '4', 'B', '', '', '', '',  '', '', '',  0xF0],
+        [0xC0, 32, 50, 52, 32, 53, 56, 73, 52, 32,  78, 0xC0],     //  [0xC0, '', '2', '4', '', '5', '8', 'I', '4', '',  'N', 0xC0]
+    ];
+    /**
+     *
+     * @type {SerialPortClient}
+     */
+    var sp = new serialPor('/dev/ROBOT',  { baudrate: 57600 });
+
+    for (var cont = 0; data.length > cont; cont++) {
+
+        var rand = randNum(data.length);
+        rand = rand > 3 ? rand : rand + randNum(5);
+        sp._mockData(buffer.from(data[cont].slice(0, rand)));
+        sp._mockData(buffer.from(data[cont].slice(rand, data[cont].length)));
+    }
+  </script>
+</html>
